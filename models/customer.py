@@ -15,7 +15,8 @@ class Customer:
             pygame.transform.scale(pygame.image.load(f).convert_alpha(), (180, 180))
             for f in asset_files
         ]
-        self.pelanggan_img = random.choice(self.pelanggan_imgs)
+        self.current_index = random.randint(0, len(self.pelanggan_imgs) - 1) if self.pelanggan_imgs else 0
+        self.pelanggan_img = self.pelanggan_imgs[self.current_index]
         self.rect = self.pelanggan_img.get_rect()
         self.rect.bottomleft = (CUSTOMER_START_X, self.bottom_y)
         
@@ -25,8 +26,16 @@ class Customer:
         self.exit_timer = 0.0
 
     def reset(self):
-        """Randomize new customer and start entrance animation"""
-        self.pelanggan_img = random.choice(self.pelanggan_imgs)
+        """Randomize new customer and start entrance animation (guaranteeing a different customer)"""
+        if len(self.pelanggan_imgs) > 1:
+            available_indices = [i for i in range(len(self.pelanggan_imgs)) if i != self.current_index]
+            self.current_index = random.choice(available_indices)
+        elif self.pelanggan_imgs:
+            self.current_index = 0
+
+        if self.pelanggan_imgs:
+            self.pelanggan_img = self.pelanggan_imgs[self.current_index]
+            
         self.anim_timer = 0.0
         self.is_entering = True
         self.is_leaving = False

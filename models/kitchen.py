@@ -218,9 +218,9 @@ class Kitchen:
         ingredient_items = [
             {"text": "Flour",  "pos": (self.flour.centerx, self.flour.bottom + 8)},
             {"text": "Egg",    "pos": (self.egg.centerx, self.egg.bottom + 8)},
-            {"text": "Butter", "pos": (self.butter.centerx, self.butter.bottom + 8)},
-            {"text": "Sugar",  "pos": (self.sugar.centerx, self.sugar.bottom + 8)},
-            {"text": "Choco",  "pos": (self.chocochip.centerx, self.chocochip.bottom + 8)},
+            {"text": "Butter", "pos": (self.butter.centerx, self.butter.bottom + 20)},
+            {"text": "Sugar",  "pos": (self.sugar.centerx, self.sugar.bottom + 3)},
+            {"text": "Choco",  "pos": (self.chocochip.centerx, self.chocochip.bottom + 16)},
         ]
         
         for item in ingredient_items:

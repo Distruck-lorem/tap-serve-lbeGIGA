@@ -10,6 +10,7 @@ from models.customer import Customer
 from models.oven import Oven
 from models.qte import QTEBar
 from models.kitchen import Kitchen
+from models.tutorial import TutorialGuide
 
 def ease_out_back(t):
     """Ease out back curve (overshoot / pop-in bounce effect)"""
@@ -61,6 +62,7 @@ class Game:
         self.font_title = pygame.font.Font(None, 42)
         self.font_start = pygame.font.Font(None, 28)
         self.font_sub = pygame.font.Font(None, 22)
+        self.font_small = pygame.font.Font(None, 18)
 
         # Gradient Background for HOME screen (Cream top to Warm Peach bottom)
         self.home_bg_surf = create_gradient_surface(
@@ -157,6 +159,10 @@ class Game:
         
         self.show_hitboxes = False
 
+        # Tutorial / Guide System
+        self.guide_btn_rect = pygame.Rect(146, 12, 64, 26)
+        self.tutorial_guide = TutorialGuide(font_sub=self.font_sub, font_small=self.font_small)
+
         # Start Lobby Music (Random Jazz 1-3)
         self.play_lobby_music()
 
@@ -225,7 +231,12 @@ class Game:
                         self.current_state = STATE_PAUSED
                         return True
 
-                    # 2. Unlimited Mode Close Asset Button
+                    # 2. Guide Toggle Button
+                    if self.guide_btn_rect.collidepoint(event.pos):
+                        self.tutorial_guide.toggle()
+                        return True
+
+                    # 3. Unlimited Mode Close Asset Button
                     if self.selected_mode == MODE_UNLIMITED and self.close_btn_rect.collidepoint(event.pos):
                         self.current_state = STATE_GAMEOVER
                         print(f"Session Closed! Final Score: {self.score}")
@@ -283,6 +294,8 @@ class Game:
                 self.modal_anim_timer += dt
 
         elif self.current_state == STATE_PLAYING:
+            self.tutorial_guide.update(dt)
+
             if self.fade_timer > 0:
                 self.fade_timer -= dt
                 if self.fade_timer < 0:
@@ -423,6 +436,19 @@ class Game:
             bg_score = score_rect.inflate(14, 6)
             pygame.draw.rect(self.screen, (30, 30, 30), bg_score, border_radius=6)
             self.screen.blit(score_surf, score_rect)
+
+            # Guide Toggle Button (HUD Top Bar)
+            guide_color = GOLD if self.tutorial_guide.is_enabled else (140, 140, 140)
+            guide_txt_str = "HINT: ON" if self.tutorial_guide.is_enabled else "HINT: OFF"
+            guide_surf = self.font_small.render(guide_txt_str, True, WHITE)
+            guide_rect = guide_surf.get_rect(center=self.guide_btn_rect.center)
+            pygame.draw.rect(self.screen, (30, 30, 30), self.guide_btn_rect, border_radius=6)
+            pygame.draw.rect(self.screen, guide_color, self.guide_btn_rect, width=1, border_radius=6)
+            self.screen.blit(guide_surf, guide_rect)
+
+            # Render Tutorial Banner & Animated Pointer Arrow
+            if self.current_state == STATE_PLAYING:
+                self.tutorial_guide.draw(self.screen, self.kitchen, self.oven, self.customer)
 
             # Render Close Button Asset in Unlimited Mode (Bottom-Right of half-bottom)
             if self.selected_mode == MODE_UNLIMITED:
